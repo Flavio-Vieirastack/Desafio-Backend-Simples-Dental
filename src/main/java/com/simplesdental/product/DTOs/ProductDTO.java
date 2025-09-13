@@ -24,5 +24,7 @@ public record ProductDTO(
         Boolean status,
 
         @Size(max = 50, message = "O código do produto não pode ter mais de 50 caracteres")
-        String code
+        String code,
+        @NotNull
+        Long categoryId
 ) {}

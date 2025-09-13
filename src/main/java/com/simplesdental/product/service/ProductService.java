@@ -7,12 +7,10 @@ import com.simplesdental.product.repository.ProductRepository;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +18,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ApiObjectMapper<Product> apiObjectMapper;
+    private final CategoryService categoryService;
 
     @TransactionalReadOnly
     public List<Product> findAll() {
@@ -36,7 +35,9 @@ public class ProductService {
 
     @Transactional
     public Product save(ProductDTO product) {
+        var category = categoryService.findById(product.categoryId());
         var convertedProduct =  apiObjectMapper.dtoToEntity(product, Product.class);
+        convertedProduct.setCategory(category);
         return productRepository.save(convertedProduct);
     }
 
@@ -50,6 +51,8 @@ public class ProductService {
     public Product updateProduct(ProductDTO product, Long id) {
         var currentProduct = findById(id);
         apiObjectMapper.merge(product, currentProduct);
+        var category = categoryService.findById(product.categoryId());
+        currentProduct.setCategory(category);
         return productRepository.save(currentProduct);
     }
 }
