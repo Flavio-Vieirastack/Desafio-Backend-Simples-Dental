@@ -22,8 +22,11 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<List<Product>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(productService.findAll(page, size));
     }
 
     @GetMapping("/{id}")

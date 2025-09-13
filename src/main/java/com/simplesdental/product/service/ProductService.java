@@ -7,6 +7,7 @@ import com.simplesdental.product.repository.ProductRepository;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +22,9 @@ public class ProductService {
     private final CategoryService categoryService;
 
     @TransactionalReadOnly
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<Product> findAll(int pageNumber, int pageSize) {
+        var page = PageRequest.of(pageNumber, pageSize);
+        return productRepository.findAll(page).getContent();
     }
 
     @TransactionalReadOnly
@@ -36,7 +38,7 @@ public class ProductService {
     @Transactional
     public Product save(ProductDTO product) {
         var category = categoryService.findById(product.categoryId());
-        var convertedProduct =  apiObjectMapper.dtoToEntity(product, Product.class);
+        var convertedProduct = apiObjectMapper.dtoToEntity(product, Product.class);
         convertedProduct.setCategory(category);
         return productRepository.save(convertedProduct);
     }

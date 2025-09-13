@@ -20,8 +20,11 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryService.findAll();
+    public List<Category> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return categoryService.findAll(page, size);
     }
 
     @GetMapping("/{id}")

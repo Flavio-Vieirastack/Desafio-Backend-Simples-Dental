@@ -7,6 +7,7 @@ import com.simplesdental.product.repository.CategoryRepository;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +21,9 @@ public class CategoryService {
     private final ApiObjectMapper<Category> apiObjectMapper;
 
     @TransactionalReadOnly
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    public List<Category> findAll(int pageNumber, int pageSize) {
+        var page = PageRequest.of(pageNumber, pageSize);
+        return categoryRepository.findAll(page).getContent();
     }
 
     @TransactionalReadOnly
