@@ -3,6 +3,7 @@ package com.simplesdental.product.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -22,11 +23,12 @@ public class ApiObjectMapper<T> {
         return objectMapper.convertValue(dto, model);
     }
 
-    public T convert(Object dto, Class<T> model) {
-        return objectMapper.convertValue(dto, model);
-    }
-
-    public T entityToDto(Object model, Class<T> dto) {
-        return objectMapper.convertValue(model, dto);
+    public T merge(Object dto, T entity) {
+        try {
+            ObjectReader updater = objectMapper.readerForUpdating(entity);
+            return updater.readValue(objectMapper.writeValueAsString(dto));
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao mesclar DTO na entidade", e);
+        }
     }
 }
