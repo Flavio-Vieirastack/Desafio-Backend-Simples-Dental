@@ -1,6 +1,10 @@
 package com.simplesdental.product.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.simplesdental.product.DTOs.responses.ProductResponseDTO;
+import com.simplesdental.product.DTOs.responses.ProductV2ResponseDTO;
+import com.simplesdental.product.Interfaces.CustomResponse;
+import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +21,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Check(constraints = "price > 0")
-public class ProductV2 {
+public class ProductV2 implements CustomResponse<ProductV2ResponseDTO> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,4 +48,9 @@ public class ProductV2 {
             foreignKey = @ForeignKey(name = "fk_products_category_v2"))
     @JsonIgnoreProperties({"products"})
     private Category category;
+
+    @Override
+    public ProductV2ResponseDTO getResponse(ApiObjectMapper<ProductV2ResponseDTO> apiObjectMapper) {
+        return apiObjectMapper.entityToDto(this, ProductV2ResponseDTO.class);
+    }
 }

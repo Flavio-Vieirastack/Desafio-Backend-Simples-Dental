@@ -31,4 +31,7 @@ public class ApiObjectMapper<T> {
             throw new RuntimeException("Erro ao mesclar DTO na entidade", e);
         }
     }
+    public T entityToDto(Object entity, Class<T> dtoClass) {
+        return objectMapper.convertValue(entity, dtoClass);
+    }
 }

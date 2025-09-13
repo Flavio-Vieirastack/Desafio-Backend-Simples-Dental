@@ -1,6 +1,6 @@
 package com.simplesdental.product.service;
 
-import com.simplesdental.product.DTOs.ProductV2DTO;
+import com.simplesdental.product.DTOs.requests.ProductV2DTO;
 import com.simplesdental.product.annotations.TransactionalReadOnly;
 import com.simplesdental.product.model.ProductV2;
 import com.simplesdental.product.repository.ProductV2Repository;
@@ -43,7 +43,7 @@ public class ProductV2Service {
     @Transactional
     public ProductV2 update(ProductV2DTO productDTO, Long id) {
         var currentProduct = findById(id);
-        apiObjectMapper.merge(productDTO, currentProduct);
+        currentProduct = apiObjectMapper.merge(productDTO, currentProduct);
         var category = categoryService.findById(productDTO.categoryId());
         currentProduct.setCategory(category);
         return productRepository.save(currentProduct);

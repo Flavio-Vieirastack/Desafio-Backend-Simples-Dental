@@ -1,6 +1,9 @@
 package com.simplesdental.product.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.simplesdental.product.DTOs.responses.CategoryResponseDTO;
+import com.simplesdental.product.Interfaces.CustomResponse;
+import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -16,7 +19,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Category {
+public class Category implements CustomResponse<CategoryResponseDTO> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +34,10 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"category"})
     private List<Product> products;
+
+
+    @Override
+    public CategoryResponseDTO getResponse(ApiObjectMapper<CategoryResponseDTO> apiObjectMapper) {
+        return apiObjectMapper.entityToDto(this, CategoryResponseDTO.class);
+    }
 }

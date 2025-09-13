@@ -1,6 +1,7 @@
 package com.simplesdental.product.service;
 
-import com.simplesdental.product.DTOs.CategoryDTO;
+import com.simplesdental.product.DTOs.requests.CategoryDTO;
+import com.simplesdental.product.DTOs.responses.CategoryResponseDTO;
 import com.simplesdental.product.annotations.TransactionalReadOnly;
 import com.simplesdental.product.model.Category;
 import com.simplesdental.product.repository.CategoryRepository;
@@ -21,6 +22,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final ApiObjectMapper<Category> apiObjectMapper;
+    private final ApiObjectMapper<CategoryResponseDTO> categoryResponseDTOApiObjectMapper;
 
     @TransactionalReadOnly
     public List<Category> findAll(int pageNumber, int pageSize) {
