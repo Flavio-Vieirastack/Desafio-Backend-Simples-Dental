@@ -13,7 +13,7 @@ public record CategoryDTO(
         String description,
 
         @NotNull
-        int productId
+        Integer productId
 ) {
 
 }
