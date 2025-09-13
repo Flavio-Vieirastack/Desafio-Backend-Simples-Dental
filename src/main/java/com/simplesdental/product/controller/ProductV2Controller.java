@@ -2,7 +2,6 @@ package com.simplesdental.product.controller;
 
 import com.simplesdental.product.DTOs.requests.ProductV2DTO;
 import com.simplesdental.product.DTOs.responses.ProductV2ResponseDTO;
-import com.simplesdental.product.model.ProductV2;
 import com.simplesdental.product.service.ProductV2Service;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.validation.Valid;
@@ -31,7 +30,7 @@ public class ProductV2Controller {
             description = "Retorna uma lista paginada de produtos, onde 'code' é um inteiro.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lista de produtos retornada com sucesso",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductV2.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductV2ResponseDTO.class)))
             }
     )
     @GetMapping
@@ -46,7 +45,7 @@ public class ProductV2Controller {
     @Operation(
             summary = "Buscar produto por ID (v2)",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Produto encontrado", content = @Content(schema = @Schema(implementation = ProductV2.class))),
+                    @ApiResponse(responseCode = "200", description = "Produto encontrado", content = @Content(schema = @Schema(implementation = ProductV2ResponseDTO.class))),
                     @ApiResponse(responseCode = "404", description = "Produto não encontrado")
             }
     )
@@ -58,7 +57,7 @@ public class ProductV2Controller {
     @Operation(
             summary = "Criar um novo produto (v2)",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Produto criado com sucesso", content = @Content(schema = @Schema(implementation = ProductV2.class))),
+                    @ApiResponse(responseCode = "201", description = "Produto criado com sucesso", content = @Content(schema = @Schema(implementation = ProductV2ResponseDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Dados inválidos")
             }
     )
@@ -71,7 +70,7 @@ public class ProductV2Controller {
     @Operation(
             summary = "Atualizar produto existente (v2)",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso", content = @Content(schema = @Schema(implementation = ProductV2.class))),
+                    @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso", content = @Content(schema = @Schema(implementation = ProductV2ResponseDTO.class))),
                     @ApiResponse(responseCode = "404", description = "Produto não encontrado"),
                     @ApiResponse(responseCode = "400", description = "Dados inválidos")
             }
