@@ -2,6 +2,7 @@ package com.simplesdental.product.Exceptions;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     private Map<String, Object> buildErrorResponse(HttpStatus status, String message, HttpServletRequest request) {
@@ -29,6 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex, HttpServletRequest request) {
         Map<String, Object> body = buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+        log.warn("Requisição não encontrada: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
@@ -43,12 +47,19 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> body = buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation failed", request);
         body.put("errors", validationErrors);
+        String errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        log.warn("Falha de validação: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllExceptions(Exception ex, HttpServletRequest request) {
         Map<String, Object> body = buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request);
+        log.error("Erro inesperado: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }

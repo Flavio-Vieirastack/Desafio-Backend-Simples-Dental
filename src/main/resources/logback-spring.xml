@@ -1,0 +1,41 @@
+<configuration>
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_LEVEL" value="INFO"/>
+
+    <mkdir dir="${LOG_PATH}"/>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE_JSON"/>
+    </appender>
+
+    <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/app-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <logger name="com.simplesdental.product.controller" level="DEBUG"/>
+    <logger name="com.simplesdental.product.service" level="DEBUG"/>
+    <logger name="com.simplesdental.product.repository" level="INFO"/>
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+
+    <turboFilter class="ch.qos.logback.classic.turbo.MarkerFilter">
+        <Marker>CRITICAL</Marker>
+        <OnMatch>ACCEPT</OnMatch>
+        <OnMismatch>NEUTRAL</OnMismatch>
+    </turboFilter>
+
+</configuration>
