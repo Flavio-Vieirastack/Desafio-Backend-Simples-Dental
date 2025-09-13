@@ -1,8 +1,10 @@
 package com.simplesdental.product.controller;
 
 import com.simplesdental.product.DTOs.requests.ProductV2DTO;
+import com.simplesdental.product.DTOs.responses.ProductV2ResponseDTO;
 import com.simplesdental.product.model.ProductV2;
 import com.simplesdental.product.service.ProductV2Service;
+import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +24,7 @@ import java.util.List;
 public class ProductV2Controller {
 
     private final ProductV2Service productService;
+    private final ApiObjectMapper<ProductV2ResponseDTO> apiObjectMapper;
 
     @Operation(
             summary = "Listar todos os produtos (v2)",
@@ -32,11 +35,12 @@ public class ProductV2Controller {
             }
     )
     @GetMapping
-    public ResponseEntity<List<ProductV2>> getAllProducts(
+    public ResponseEntity<List<ProductV2ResponseDTO>> getAllProducts(
             @Parameter(description = "Número da página (começa em 0)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Quantidade de itens por página") @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(productService.findAll(page, size));
+        return ResponseEntity.ok(productService.findAll(page, size)
+                .stream().map((p -> p.getResponse(apiObjectMapper))).toList());
     }
 
     @Operation(
@@ -47,8 +51,8 @@ public class ProductV2Controller {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ProductV2> getProductById(@Parameter(description = "ID do produto") @PathVariable Long id) {
-        return ResponseEntity.ok(productService.findById(id));
+    public ResponseEntity<ProductV2ResponseDTO> getProductById(@Parameter(description = "ID do produto") @PathVariable Long id) {
+        return ResponseEntity.ok(productService.findById(id).getResponse(apiObjectMapper));
     }
 
     @Operation(
@@ -59,8 +63,8 @@ public class ProductV2Controller {
             }
     )
     @PostMapping
-    public ResponseEntity<ProductV2> createProduct(@Valid @RequestBody ProductV2DTO productDTO) {
-        var saved = productService.save(productDTO);
+    public ResponseEntity<ProductV2ResponseDTO> createProduct(@Valid @RequestBody ProductV2DTO productDTO) {
+        var saved = productService.save(productDTO).getResponse(apiObjectMapper);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -73,9 +77,9 @@ public class ProductV2Controller {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<ProductV2> updateProduct(@Parameter(description = "ID do produto") @PathVariable Long id,
+    public ResponseEntity<ProductV2ResponseDTO> updateProduct(@Parameter(description = "ID do produto") @PathVariable Long id,
                                                    @Valid @RequestBody ProductV2DTO productDTO) {
-        return ResponseEntity.ok(productService.update(productDTO, id));
+        return ResponseEntity.ok(productService.update(productDTO, id).getResponse(apiObjectMapper));
     }
 
     @Operation(
