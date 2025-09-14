@@ -1,6 +1,9 @@
 package com.simplesdental.product.model;
 
+import com.simplesdental.product.DTOs.responses.UserResponseDTO;
 import com.simplesdental.product.Enums.Role;
+import com.simplesdental.product.Interfaces.CustomResponse;
+import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +27,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class User {
+public class User implements CustomResponse<UserResponseDTO> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,5 +50,10 @@ public class User {
                 .expiresAt(now.plusSeconds(expiresIn))
                 .issuedAt(now)
                 .build();
+    }
+
+    @Override
+    public UserResponseDTO getResponse(ApiObjectMapper<UserResponseDTO> apiObjectMapper) {
+        return apiObjectMapper.entityToDto(this, UserResponseDTO.class);
     }
 }

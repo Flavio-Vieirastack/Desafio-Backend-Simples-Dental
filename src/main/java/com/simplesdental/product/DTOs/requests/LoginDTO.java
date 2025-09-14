@@ -8,11 +8,18 @@ import jakarta.validation.constraints.Size;
 public record LoginDTO(
         @NotEmpty
         @Email
-        @Schema(example = "email1@meuemail.com")
+        @Schema(
+                description = "E-mail do usuário para login",
+                example = "email1@meuemail.com"
+        )
         String email,
+
         @NotEmpty
-        @Schema(example = "123456")
         @Size(min = 6)
+        @Schema(
+                description = "Senha do usuário com mínimo de 6 caracteres",
+                example = "123456"
+        )
         String password
 ) {
 }
