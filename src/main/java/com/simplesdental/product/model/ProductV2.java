@@ -15,7 +15,11 @@ import org.hibernate.annotations.Check;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "tb_products_v2")
+@Table(
+        name = "tb_products_v2",
+        indexes = { @Index(name = "idx_product_v2_code", columnList = "code") },
+        uniqueConstraints = { @UniqueConstraint(name = "uk_product_v2_code", columnNames = "code") }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,8 +43,7 @@ public class ProductV2 implements CustomResponse<ProductV2ResponseDTO> {
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
-    // Agora code é inteiro
-    @Column(name = "code", unique = true)
+    @Column(name = "code")
     private Integer code;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

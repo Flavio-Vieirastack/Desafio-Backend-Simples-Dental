@@ -19,7 +19,8 @@ import java.math.BigDecimal;
 @Entity
 @Table(
         name = "tb_products",
-        indexes = { @Index(name = "idx_product_code", columnList = "code") }
+        indexes = { @Index(name = "idx_product_code", columnList = "code") },
+        uniqueConstraints = { @UniqueConstraint(name = "uk_product_code", columnNames = "code") }
 )
 @Getter
 @Setter
@@ -44,7 +45,7 @@ public class Product implements CustomResponse<ProductResponseDTO> {
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
-    @Column(name = "code", length = 50, unique = true)
+    @Column(name = "code", length = 50)
     private String code;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
