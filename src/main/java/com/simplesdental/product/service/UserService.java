@@ -74,7 +74,7 @@ public class UserService {
 
         if (storedToken.isEmpty() || storedToken.get().isExpired()) {
             log.warn("Refresh token inválido ou expirado: {}", refreshToken);
-            throw new AccessDeniedException("Token inválido ou expirado");
+            throw new BadCredentialsException("Token inválido ou expirado");
         }
 
         User user = storedToken.get().getUser();

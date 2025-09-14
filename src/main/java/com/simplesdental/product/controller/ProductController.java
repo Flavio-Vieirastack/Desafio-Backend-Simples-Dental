@@ -2,6 +2,7 @@ package com.simplesdental.product.controller;
 
 import com.simplesdental.product.DTOs.requests.ProductDTO;
 import com.simplesdental.product.DTOs.responses.ProductResponseDTO;
+import com.simplesdental.product.constants.AuthorityConstants;
 import com.simplesdental.product.model.Product;
 import com.simplesdental.product.service.ProductService;
 import com.simplesdental.product.utils.ApiObjectMapper;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -67,6 +69,7 @@ public class ProductController {
             }
     )
     @PostMapping
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductDTO product) {
         ProductResponseDTO savedProduct = productService.save(product).getResponse(productResponseDTOApiObjectMapper);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
@@ -81,6 +84,7 @@ public class ProductController {
             }
     )
     @PutMapping("/{id}")
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<ProductResponseDTO> updateProduct(@Parameter(description = "ID do produto") @PathVariable Long id,
                                                  @Valid @RequestBody ProductDTO product) {
         return ResponseEntity.ok(productService.updateProduct(product, id).getResponse(productResponseDTOApiObjectMapper));
@@ -94,6 +98,7 @@ public class ProductController {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<Void> deleteProduct(@Parameter(description = "ID do produto") @PathVariable Long id) {
         productService.deleteById(id);
         return ResponseEntity.noContent().build();

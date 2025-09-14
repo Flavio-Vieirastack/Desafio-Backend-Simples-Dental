@@ -2,6 +2,7 @@ package com.simplesdental.product.controller;
 
 import com.simplesdental.product.DTOs.requests.CategoryDTO;
 import com.simplesdental.product.DTOs.responses.CategoryResponseDTO;
+import com.simplesdental.product.constants.AuthorityConstants;
 import com.simplesdental.product.model.Category;
 import com.simplesdental.product.service.CategoryService;
 import com.simplesdental.product.utils.ApiObjectMapper;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -62,6 +64,7 @@ public class CategoryController {
             }
     )
     @PostMapping
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryDTO category) {
         CategoryResponseDTO saved = categoryService.save(category).getResponse(categoryResponseDTOApiObjectMapper);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -76,6 +79,7 @@ public class CategoryController {
             }
     )
     @PutMapping("/{id}")
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<CategoryResponseDTO> updateCategory(@Parameter(description = "ID da categoria") @PathVariable Long id,
                                                    @Valid @RequestBody CategoryDTO category) {
         return ResponseEntity.ok(categoryService.update(category, id).getResponse(categoryResponseDTOApiObjectMapper));
@@ -89,6 +93,7 @@ public class CategoryController {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<Void> deleteCategory(@Parameter(description = "ID da categoria") @PathVariable Long id) {
         categoryService.deleteById(id);
         return ResponseEntity.noContent().build();

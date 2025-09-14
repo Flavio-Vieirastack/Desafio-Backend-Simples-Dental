@@ -5,6 +5,7 @@ import com.simplesdental.product.DTOs.requests.UserDTO;
 import com.simplesdental.product.DTOs.responses.LoginResponseDTO;
 import com.simplesdental.product.DTOs.responses.UserResponseContextDTO;
 import com.simplesdental.product.DTOs.responses.UserResponseDTO;
+import com.simplesdental.product.constants.AuthorityConstants;
 import com.simplesdental.product.service.UserService;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +51,7 @@ public class AuthController {
             }
     )
     @PostMapping(path = "/register")
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<UserResponseDTO> createNewUser(
             @Parameter(description = "DTO contendo informações do novo usuário")
             @Valid @RequestBody UserDTO userDTO
@@ -88,5 +91,28 @@ public class AuthController {
     ) {
         userService.changePassword(jwtAuthenticationToken, newPassword);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "Atualizar token de acesso usando o refresh token",
+            description = "Gera um novo token de acesso válido usando um refresh token existente.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Token atualizado com sucesso",
+                            content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Refresh token inválido ou mal formatado"
+                    )
+            }
+    )
+    @PostMapping(path = "/refresh-token")
+    public ResponseEntity<LoginResponseDTO> refreshToken(
+            @Parameter(description = "Refresh token válido para gerar um novo access token", required = true)
+            @RequestParam String refreshToken
+    ) {
+        return ResponseEntity.ok(userService.refreshToken(refreshToken));
     }
 }

@@ -2,6 +2,7 @@ package com.simplesdental.product.controller;
 
 import com.simplesdental.product.DTOs.requests.ProductV2DTO;
 import com.simplesdental.product.DTOs.responses.ProductV2ResponseDTO;
+import com.simplesdental.product.constants.AuthorityConstants;
 import com.simplesdental.product.service.ProductV2Service;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -62,6 +64,7 @@ public class ProductV2Controller {
             }
     )
     @PostMapping
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<ProductV2ResponseDTO> createProduct(@Valid @RequestBody ProductV2DTO productDTO) {
         var saved = productService.save(productDTO).getResponse(apiObjectMapper);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -76,6 +79,7 @@ public class ProductV2Controller {
             }
     )
     @PutMapping("/{id}")
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<ProductV2ResponseDTO> updateProduct(@Parameter(description = "ID do produto") @PathVariable Long id,
                                                    @Valid @RequestBody ProductV2DTO productDTO) {
         return ResponseEntity.ok(productService.update(productDTO, id).getResponse(apiObjectMapper));
@@ -89,6 +93,7 @@ public class ProductV2Controller {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize(AuthorityConstants.ADMIN)
     public ResponseEntity<Void> deleteProduct(@Parameter(description = "ID do produto") @PathVariable Long id) {
         productService.deleteById(id);
         return ResponseEntity.noContent().build();
