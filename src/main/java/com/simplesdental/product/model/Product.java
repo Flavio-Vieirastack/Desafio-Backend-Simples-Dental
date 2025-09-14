@@ -5,12 +5,8 @@ import com.simplesdental.product.DTOs.responses.ProductResponseDTO;
 import com.simplesdental.product.Interfaces.CustomResponse;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Check;
 
@@ -25,7 +21,6 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Check(constraints = "price > 0")
 public class Product implements CustomResponse<ProductResponseDTO> {
 

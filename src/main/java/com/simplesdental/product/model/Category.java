@@ -5,10 +5,8 @@ import com.simplesdental.product.DTOs.responses.CategoryResponseDTO;
 import com.simplesdental.product.Interfaces.CustomResponse;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -18,7 +16,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@RequiredArgsConstructor
 public class Category implements CustomResponse<CategoryResponseDTO> {
 
     @Id

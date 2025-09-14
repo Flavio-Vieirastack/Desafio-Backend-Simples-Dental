@@ -7,7 +7,6 @@ import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 
@@ -26,7 +25,6 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-@RequiredArgsConstructor
 public class User implements CustomResponse<UserResponseDTO> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

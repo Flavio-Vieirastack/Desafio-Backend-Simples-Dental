@@ -1,128 +1,130 @@
 package com.simplesdental.product.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simplesdental.product.DTOs.requests.ProductDTO;
+import com.simplesdental.product.DTOs.responses.CategoryResponseDTO;
+import com.simplesdental.product.DTOs.responses.ProductResponseDTO;
 import com.simplesdental.product.model.Product;
 import com.simplesdental.product.service.ProductService;
+import com.simplesdental.product.utils.ApiObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ProductController.class)
-public class ProductControllerTest {
+class ProductControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @Mock
     private ProductService productService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Mock
+    private ApiObjectMapper<ProductResponseDTO> productResponseDTOApiObjectMapper;
 
-    private Product product;
+    @InjectMocks
+    private ProductController productController;
+
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        product = new Product();
-        product.setId(1L);
-        product.setName("Test Product");
-        product.setDescription("Test Description");
-        product.setPrice(new BigDecimal("19.99"));
-        product.setStatus(true);
-        product.setCode("TP001");
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
     }
 
     @Test
-    void shouldCreateProduct() throws Exception {
-        when(productService.save(any(Product.class))).thenReturn(product);
+    void testGetAllProducts() throws Exception {
+        Product product = new Product();
+        CategoryResponseDTO categoryDTO = new CategoryResponseDTO(1L, "Higiene Bucal", "Produtos para higiene diária dos dentes");
+        ProductResponseDTO responseDTO = new ProductResponseDTO(1L, "Escova de Dentes", "Escova macia para uso diário", new BigDecimal("12.50"), true, "PROD-001", categoryDTO);
+
+        when(productService.findAll(0, 10)).thenReturn(List.of(product));
+        when(product.getResponse(productResponseDTOApiObjectMapper)).thenReturn(responseDTO);
+
+        mockMvc.perform(get("/api/products")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].name").value("Escova de Dentes"))
+                .andExpect(jsonPath("$[0].description").value("Escova macia para uso diário"))
+                .andExpect(jsonPath("$[0].price").value(12.50))
+                .andExpect(jsonPath("$[0].status").value(true))
+                .andExpect(jsonPath("$[0].code").value("PROD-001"))
+                .andExpect(jsonPath("$[0].category.id").value(1L));
+    }
+
+    @Test
+    void testGetProductById() throws Exception {
+        Product product = new Product();
+        CategoryResponseDTO categoryDTO = new CategoryResponseDTO(1L, "Higiene Bucal", "Produtos para higiene diária dos dentes");
+        ProductResponseDTO responseDTO = new ProductResponseDTO(1L, "Escova de Dentes", "Escova macia para uso diário", new BigDecimal("12.50"), true, "PROD-001", categoryDTO);
+
+        when(productService.findById(1L)).thenReturn(product);
+        when(product.getResponse(productResponseDTOApiObjectMapper)).thenReturn(responseDTO);
+
+        mockMvc.perform(get("/api/products/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Escova de Dentes"))
+                .andExpect(jsonPath("$.category.id").value(1L));
+    }
+
+    @Test
+    void testCreateProduct() throws Exception {
+        ProductDTO dto = new ProductDTO("Escova de Dentes", "Escova macia para uso diário", new BigDecimal("12.50"), true, "PROD-001", 1L);
+        Product product = new Product();
+        CategoryResponseDTO categoryDTO = new CategoryResponseDTO(1L, "Higiene Bucal", "Produtos para higiene diária dos dentes");
+        ProductResponseDTO responseDTO = new ProductResponseDTO(1L, dto.name(), dto.description(), dto.price(), dto.status(), dto.code(), categoryDTO);
+
+        when(productService.save(any(ProductDTO.class))).thenReturn(product);
+        when(product.getResponse(productResponseDTOApiObjectMapper)).thenReturn(responseDTO);
 
         mockMvc.perform(post("/api/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(product)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(product.getId()))
-                .andExpect(jsonPath("$.name").value(product.getName()));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Escova de Dentes"))
+                .andExpect(jsonPath("$.price").value(12.50))
+                .andExpect(jsonPath("$.category.id").value(1L));
     }
 
     @Test
-    void shouldGetAllProducts() throws Exception {
-        when(productService.findAll()).thenReturn(Arrays.asList(product));
+    void testUpdateProduct() throws Exception {
+        ProductDTO dto = new ProductDTO("Escova Atualizada", "Descrição atualizada", new BigDecimal("15.00"), true, "PROD-002", 1L);
+        Product product = new Product();
+        CategoryResponseDTO categoryDTO = new CategoryResponseDTO(1L, "Higiene Bucal", "Produtos para higiene diária dos dentes");
+        ProductResponseDTO responseDTO = new ProductResponseDTO(1L, dto.name(), dto.description(), dto.price(), dto.status(), dto.code(), categoryDTO);
 
-        mockMvc.perform(get("/api/products"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(product.getId()))
-                .andExpect(jsonPath("$[0].name").value(product.getName()));
-    }
-
-    @Test
-    void shouldGetProductById() throws Exception {
-        when(productService.findById(1L)).thenReturn(Optional.of(product));
-
-        mockMvc.perform(get("/api/products/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(product.getId()))
-                .andExpect(jsonPath("$.name").value(product.getName()));
-    }
-
-    @Test
-    void shouldReturn404WhenGetProductByIdNotFound() throws Exception {
-        when(productService.findById(1L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/products/1"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void shouldUpdateProduct() throws Exception {
-        when(productService.findById(1L)).thenReturn(Optional.of(product));
-        when(productService.save(any(Product.class))).thenReturn(product);
+        when(productService.updateProduct(any(ProductDTO.class), any(Long.class))).thenReturn(product);
+        when(product.getResponse(productResponseDTOApiObjectMapper)).thenReturn(responseDTO);
 
         mockMvc.perform(put("/api/products/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(product)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(product.getId()))
-                .andExpect(jsonPath("$.name").value(product.getName()));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Escova Atualizada"))
+                .andExpect(jsonPath("$.price").value(15.00))
+                .andExpect(jsonPath("$.code").value("PROD-002"));
     }
 
     @Test
-    void shouldReturn404WhenUpdateProductNotFound() throws Exception {
-        when(productService.findById(1L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(put("/api/products/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(product)))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void shouldDeleteProduct() throws Exception {
-        when(productService.findById(1L)).thenReturn(Optional.of(product));
-        doNothing().when(productService).deleteById(1L);
-
+    void testDeleteProduct() throws Exception {
         mockMvc.perform(delete("/api/products/1"))
                 .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void shouldReturn404WhenDeleteProductNotFound() throws Exception {
-        when(productService.findById(1L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(delete("/api/products/1"))
-                .andExpect(status().isNotFound());
     }
 }

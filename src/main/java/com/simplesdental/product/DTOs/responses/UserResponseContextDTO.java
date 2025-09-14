@@ -2,7 +2,6 @@ package com.simplesdental.product.DTOs.responses;
 
 import com.simplesdental.product.Enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 
 public record UserResponseContextDTO(
         @Schema(description = "Nome completo do usuário", example = "João da Silva")
