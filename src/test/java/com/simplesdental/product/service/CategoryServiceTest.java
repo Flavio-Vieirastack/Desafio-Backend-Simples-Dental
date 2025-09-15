@@ -3,6 +3,8 @@ package com.simplesdental.product.service;
 import com.simplesdental.product.DTOs.requests.CategoryDTO;
 import com.simplesdental.product.model.Category;
 import com.simplesdental.product.repository.CategoryRepository;
+import com.simplesdental.product.repository.ProductRepository;
+import com.simplesdental.product.repository.ProductV2Repository;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,13 +17,19 @@ import org.springframework.data.domain.PageRequest;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class CategoryServiceTest {
-
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private ProductV2Repository productV2Repository;
 
     @Mock
     private ApiObjectMapper<Category> apiObjectMapper;
@@ -35,6 +43,7 @@ class CategoryServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
         category = new Category();
         category.setId(1L);
         category.setName("Higiene Bucal");
@@ -44,64 +53,77 @@ class CategoryServiceTest {
     }
 
     @Test
-    void testFindAll() {
+    void findAll_ShouldReturnCategories() {
         Page<Category> page = new PageImpl<>(List.of(category));
         when(categoryRepository.findAll(any(PageRequest.class))).thenReturn(page);
 
-        List<Category> categories = categoryService.findAll(0, 10);
-        assertEquals(1, categories.size());
-        assertEquals("Higiene Bucal", categories.get(0).getName());
+        List<Category> result = categoryService.findAll(0, 10);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getName()).isEqualTo("Higiene Bucal");
+        verify(categoryRepository, times(1)).findAll(any(PageRequest.class));
     }
 
     @Test
-    void testFindById_Found() {
+    void findById_WhenFound_ShouldReturnCategory() {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
-        Category found = categoryService.findById(1L);
-        assertNotNull(found);
-        assertEquals(1L, found.getId());
+        Category result = categoryService.findById(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
     }
 
     @Test
-    void testFindById_NotFound() {
+    void findById_WhenNotFound_ShouldThrowException() {
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> categoryService.findById(1L));
     }
 
     @Test
-    void testSave() {
+    void save_ShouldReturnSavedCategory() {
         when(apiObjectMapper.dtoToEntity(categoryDTO, Category.class)).thenReturn(category);
         when(categoryRepository.save(category)).thenReturn(category);
 
-        Category saved = categoryService.save(categoryDTO);
-        assertNotNull(saved);
-        assertEquals("Higiene Bucal", saved.getName());
+        Category result = categoryService.save(categoryDTO);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Higiene Bucal");
+        verify(categoryRepository, times(1)).save(category);
     }
 
     @Test
-    void testUpdate_Found() {
+    void update_WhenFound_ShouldReturnUpdatedCategory() {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-        when(apiObjectMapper.dtoToEntity(categoryDTO, Category.class)).thenReturn(category);
         when(categoryRepository.save(category)).thenReturn(category);
 
-        Category updated = categoryService.update(categoryDTO, 1L);
-        assertNotNull(updated);
-        assertEquals(1L, updated.getId());
+        when(productRepository.findById(1L)).thenReturn(Optional.empty());
+        when(productV2Repository.findById(1L)).thenReturn(Optional.empty());
+
+        Category result = categoryService.update(categoryDTO, 1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getName()).isEqualTo(categoryDTO.name());
+        assertThat(result.getDescription()).isEqualTo(categoryDTO.description());
+        verify(categoryRepository, times(1)).save(category);
     }
 
     @Test
-    void testUpdate_NotFound() {
+    void update_WhenNotFound_ShouldThrowException() {
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+
         assertThrows(EntityNotFoundException.class, () -> categoryService.update(categoryDTO, 1L));
     }
 
     @Test
-    void testDeleteById() {
+    void deleteById_ShouldDeleteCategory() {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         doNothing().when(categoryRepository).delete(category);
 
-        assertDoesNotThrow(() -> categoryService.deleteById(1L));
+        categoryService.deleteById(1L);
+
         verify(categoryRepository, times(1)).delete(category);
     }
 }

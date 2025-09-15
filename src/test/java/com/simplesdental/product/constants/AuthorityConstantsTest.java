@@ -8,7 +8,7 @@ class AuthorityConstantsTest {
 
     @Test
     void testConstantsValues() {
-        assertThat(AuthorityConstants.ADMIN).isEqualTo("ADMIN");
-        assertThat(AuthorityConstants.USER).isEqualTo("USER");
+        assertThat(AuthorityConstants.ADMIN).isEqualTo("hasAuthority('SCOPE_ADMIN')");
+        assertThat(AuthorityConstants.USER).isEqualTo("hasAuthority('SCOPE_USER')");
     }
 }

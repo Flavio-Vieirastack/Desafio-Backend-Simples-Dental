@@ -14,12 +14,19 @@ class SwaggerConfigTest {
     private OpenAPI openAPI;
 
     @Test
-    void testOpenApiBeanIsCreated() {
-        assertThat(openAPI).isNotNull();
-        assertThat(openAPI.getInfo()).isNotNull();
-        assertThat(openAPI.getInfo().getTitle()).isEqualTo("API SimplesDental");
-        assertThat(openAPI.getInfo().getVersion()).isEqualTo("v1");
-        assertThat(openAPI.getInfo().getDescription())
-                .isEqualTo("Documentação dos endpoints da API de produtos e categorias");
+    void shouldCreateOpenApiBeanWithCorrectInfo() {
+        assertThat(openAPI)
+                .isNotNull()
+                .extracting(OpenAPI::getInfo)
+                .satisfies(info -> {
+                    assertThat(info).isNotNull();
+                    assertThat(info.getTitle()).isEqualTo("Simples Dental API");
+                    assertThat(info.getVersion()).isEqualTo("v1");
+                    assertThat(info.getDescription())
+                            .isEqualTo("Documentação da API com autenticação JWT");
+                });
+
+        assertThat(openAPI.getComponents().getSecuritySchemes())
+                .containsKey("bearerAuth");
     }
 }
