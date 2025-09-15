@@ -76,5 +76,59 @@ Você deve ajustar as entidades (model e sql) de acordo com as regras abaixo:
 5. **Considerando uma aplicação composta por múltiplos serviços, quais componentes você considera essenciais para assegurar sua robustez e eficiência?**
 6. **Como você estruturaria uma pipeline de CI/CD para automação de testes e deploy, assegurando entregas contínuas e confiáveis?**
 
-Obs: Forneça apenas respostas textuais; não é necessário implementar as perguntas acima.
+# Respostas
+
+## 1. Arquitetura
+Se eu tivesse a oportunidade de criar o projeto do zero ou refatorar o atual, optaria por uma **arquitetura modular**, começando com um **monolito modular** se o projeto for pequeno ou médio, e evoluindo para **microserviços** caso o sistema cresça.  
+Isso garante organização, separação de responsabilidades e facilidade de manutenção, além de permitir escalabilidade horizontal conforme a necessidade.
+
+## 2. Escalabilidade e organização
+Para garantir escalabilidade mantendo o código organizado, eu aplicaria:
+- Camadas bem definidas (Controller, Service, Repository, Domain);
+- Uso de **DTOs** para comunicação entre camadas;
+- **Cache** para otimizar acesso a dados frequentes;
+- Processamento assíncrono e filas para operações de longa duração;
+- Padrões de projeto (Strategy, Factory, Dependency Injection) para reduzir acoplamento.
+
+## 3. Multitenancy
+As estratégias mais comuns para multitenancy incluem:
+- **Banco por tenant**, para isolamento total;
+- **Schema por tenant**, mantendo banco único, mas com schemas separados;
+- **Shared schema com coluna tenant_id**, mais simples, mas exige cuidado em queries e validações.
+
+## 4. Resiliência e alta disponibilidade
+Para manter a API disponível mesmo durante picos ou falhas:
+- **Load balancer** para distribuir o tráfego;
+- **Circuit breaker e retry** (Resilience4j, Hystrix) para isolar falhas;
+- **Replicação de banco de dados e clusters**;
+- **Auto-scaling** em servidores e serviços críticos.
+
+## 5. Segurança
+Práticas essenciais para prevenir vulnerabilidades:
+- **Prepared statements / ORM** para evitar SQL Injection;
+- **Validação e sanitização de inputs** para XSS;
+- **Autenticação e autorização robustas** (JWT, OAuth2);
+- **Criptografia de dados sensíveis** e HTTPS/TLS;
+- **Rate limiting** e monitoramento de endpoints críticos.
+
+## 6. Tratamento de exceções de negócio
+- Criar **exceções customizadas** para regras de negócio;
+- Usar um **Global Exception Handler** (`@ControllerAdvice`) para padronizar respostas;
+- Retornar **DTOs padronizados** com status, mensagem e timestamp;
+- Garantir que o fluxo continue de forma previsível mesmo após erros.
+
+## 7. Componentes essenciais para múltiplos serviços
+- **API Gateway** para roteamento e autenticação;
+- **Service Registry** (Eureka, Consul) para descoberta de serviços;
+- **Mensageria** (Kafka, RabbitMQ) para comunicação assíncrona;
+- **Monitoramento centralizado** (Prometheus, Grafana);
+- **Circuit breaker e retry** para tolerância a falhas.
+
+## 8. CI/CD
+Uma pipeline confiável incluiria:
+- **Build automático** em cada commit ou pull request;
+- **Testes automatizados** (unitários, integração e E2E);
+- **Análise estática de código** (SonarQube, linters);
+- **Deploy automatizado** com rollback em caso de falha;
+- Uso de **Docker e Kubernetes** para consistência de ambiente e escalabilidade.
 
