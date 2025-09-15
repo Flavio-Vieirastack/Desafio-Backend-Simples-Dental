@@ -54,3 +54,4 @@ public class Product implements CustomResponse<ProductResponseDTO> {
         return apiObjectMapper.entityToDto(this, ProductResponseDTO.class);
     }
 }
+//Remove-Item -Recurse -Force .\postgres-data

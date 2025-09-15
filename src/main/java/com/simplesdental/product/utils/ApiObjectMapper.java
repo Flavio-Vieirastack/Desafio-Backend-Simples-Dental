@@ -1,6 +1,7 @@
 package com.simplesdental.product.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -33,5 +34,12 @@ public class ApiObjectMapper<T> {
     }
     public T entityToDto(Object entity, Class<T> dtoClass) {
         return objectMapper.convertValue(entity, dtoClass);
+    }
+    public String objectToStringJson(Object value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

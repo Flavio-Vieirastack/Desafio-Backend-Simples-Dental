@@ -9,10 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "tb_categories")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,7 +31,11 @@ public class Category implements CustomResponse<CategoryResponseDTO> {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"category"})
-    private List<Product> products;
+    private List<Product> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"category"})
+    private List<ProductV2> productsV2 = new ArrayList<>();
 
 
     @Override

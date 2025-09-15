@@ -4,6 +4,8 @@ import com.simplesdental.product.DTOs.requests.CategoryDTO;
 import com.simplesdental.product.annotations.TransactionalReadOnly;
 import com.simplesdental.product.model.Category;
 import com.simplesdental.product.repository.CategoryRepository;
+import com.simplesdental.product.repository.ProductRepository;
+import com.simplesdental.product.repository.ProductV2Repository;
 import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,9 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
     private final ApiObjectMapper<Category> apiObjectMapper;
+    private final ProductV2Repository productV2Repository;
 
     @TransactionalReadOnly
     public List<Category> findAll(int pageNumber, int pageSize) {
@@ -46,9 +50,24 @@ public class CategoryService {
         log.info("Atualizando categoria id: {}", id);
         return categoryRepository.findById(id)
                 .map(existingCategory -> {
-                    Category updated = apiObjectMapper.dtoToEntity(categoryDTO, Category.class);
-                    updated.setId(existingCategory.getId());
-                    var saved = categoryRepository.save(updated);
+                    existingCategory.setName(categoryDTO.name());
+                    existingCategory.setDescription(categoryDTO.description());
+
+                    productRepository.findById(categoryDTO.productId().longValue())
+                            .ifPresent(product -> {
+                                if (!existingCategory.getProducts().contains(product)) {
+                                    existingCategory.getProducts().add(product);
+                                    product.setCategory(existingCategory);
+                                }
+                            });
+                    productV2Repository.findById(categoryDTO.productId().longValue())
+                            .ifPresent(p -> {
+                                if(!existingCategory.getProductsV2().contains(p)) {
+                                    existingCategory.getProductsV2().add(p);
+                                    p.setCategory(existingCategory);
+                                }
+                            });
+                    Category saved = categoryRepository.save(existingCategory);
                     log.info("Categoria atualizada com sucesso: {}", saved.getId());
                     return saved;
                 })

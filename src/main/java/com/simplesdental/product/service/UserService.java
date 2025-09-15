@@ -14,7 +14,6 @@ import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,7 +39,7 @@ public class UserService {
     private final ApiObjectMapper<UserResponseDTO> userResponseDTOApiObjectMapper;
     private final ApiObjectMapper<UserResponseContextDTO> userResponseContextDTOApiObjectMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final Long tokenDuration = 1500L;
+    private final Long tokenDuration = 21500L;
     private final Long refreshTokenDuration = tokenDuration * 3;
 
     @Transactional
@@ -95,6 +94,7 @@ public class UserService {
         }
         var newUser = apiObjectMapper.dtoToEntity(userDTO, User.class);
         newUser.setPassword(bCryptPasswordEncoder.encode(userDTO.password()));
+        newUser.setRole(userDTO.role());
         var savedUser = userRepository.save(newUser);
         log.info("Usuário criado com sucesso: {}", savedUser.getEmail());
         return savedUser.getResponse(userResponseDTOApiObjectMapper);

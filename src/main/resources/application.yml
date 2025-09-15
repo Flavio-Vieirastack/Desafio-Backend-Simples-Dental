@@ -11,6 +11,8 @@ spring:
         enable_lazy_load_no_trans: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         generate_statistics: false
+        type:
+          preferred_sql_type_for_enum: OTHER
 
   jackson:
     serialization:
