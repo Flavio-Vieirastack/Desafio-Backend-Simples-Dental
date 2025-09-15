@@ -14,6 +14,8 @@ import com.simplesdental.product.utils.ApiObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -85,6 +87,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "userContext")
     public UserResponseDTO createNewUser(UserDTO userDTO) {
         log.info("Criando novo usuário com email: {}", userDTO.email());
         var hasUserWithThisEmail = userRepository.findByEmail(userDTO.email());
@@ -101,6 +104,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "userContext")
     public void changePassword(JwtAuthenticationToken jwtAuthenticationToken, String newPassword) {
         var userId = getUserIdFromToken(jwtAuthenticationToken);
         log.info("Alterando senha para o usuário com ID: {}", userId);
@@ -117,6 +121,7 @@ public class UserService {
     }
 
     @TransactionalReadOnly
+    @Cacheable(value = "userContext")
     public UserResponseContextDTO getUserData(JwtAuthenticationToken jwtAuthenticationToken) {
         var userId = getUserIdFromToken(jwtAuthenticationToken);
         log.info("Buscando dados do usuário com ID: {}", userId);
